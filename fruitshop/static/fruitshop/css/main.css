@@ -34,3 +34,14 @@
 .money-balance {
     color: #ff9d19;
 }
+
+.chat_window {
+    border: 2px solid black;
+    border-radius: 5px;
+
+}
+
+.message_chat {
+    margin-bottom: 3px;
+
+}

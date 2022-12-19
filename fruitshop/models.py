@@ -8,7 +8,7 @@ User = get_user_model()
 class PersonalAccount(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name="account")
-    balance = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+    balance = models.PositiveIntegerField(default=0)
 
     class Meta:
         verbose_name = "Банковский счет"

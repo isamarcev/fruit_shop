@@ -41,7 +41,7 @@
                                     {{ product.balance }}
                                 </td>
                                 <td style="display: flex; justify-content: space-between">
-                                    <input type="text" style="width: 120px;" id="product-{{ product.id }}" placeholder="Кол-во" class="form-control">
+                                    <input type="text" style="width: 120px;" id="{{ product.id }}" name="{{ product.id }}" placeholder="Кол-во" class="form-control">
                                     <button class="btn btn-sm btn-outline-success btn-up" type="button">Купить</button>
                                     <button class="btn btn-sm btn-outline-success btn-down" type="button">Продать</button>
                                 </td>
@@ -57,22 +57,26 @@
                     <div class="row">
                             <div class="col-6">
                                     <div>
-{#                                        <p id="chat-log"></p>#}
-                                        <div class="box" id=chat-log" style="height: 200px">
+                                        <div class="box chat_window" id=chat_window" style="height: 200px; overflow: auto; padding: 10px; background-color: #bdff78">
+                                            {% for message in messages %}
+                                                <p class="message_chat">
+                                                {{ message.date|time:"H:i" }} {{ message.user }}: {{ message.text }}
 
+                                                </p>
+                                            {% endfor %}
                                         </div>
-                                        <div class="form-group" style="display: flex">
+                                        <div class="form-group" style="display: flex; margin-top: 20px">
                                             <input type="text" class="form-control" placeholder="Текст сообщения" id="input_message">
                                              <button class="btn btn-outline-success btn-header" id="send_message_button" style="margin: 0 10px; padding: 0 10px" type="button">Отправить</button>
                                         </div>
                                     </div>
                             </div>
-                        <div class="col-6" style="border: 1px solid black; text-align: center">
+                        <div class="col-6" style="border: 2px solid black; border-radius: 5px; text-align: center">
                             <div class="box" style="padding: 10px">
                                 <p>BANK</p>
                                 <div class="row" style="border: 1px solid black; text-align: center">
                                     <div class="col-6" style="border-right: 1px solid black">Банковский счет:</div>
-                                    <div class="col-6"><span class="money-balance" id="bank-balance">245</span> <span class="money-balance"> USD</span></div>
+                                    <div class="col-6"><span class="money-balance" id="bank-balance">{{ account.balance }}</span> <span class="money-balance"> USD</span></div>
                                 </div>
                                 <div class="row" style="margin-top: 10px;">
                                      <button class="btn btn-outline-success btn-header" style="width: max-content; font-size: 15px" type="button">Провести <br> бухгалтеский аудит</button>
@@ -115,16 +119,30 @@
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
-            + '/ws/'
+            + '/ws/chat/'
         );
+        const FruitSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/fruit/'
+        );
+
+        var Chat = $(".chat_window")
+        Chat.scrollTop(Chat[0].scrollHeight);
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
+            console.log(e)
             console.log(data)
+            var Chat = $(".chat_window")
             {#paragraph.innerHTML += (data.message + '\n')#}
-            let qwer = '<p>' + (data.message + '\n') + '</p>'
-            document.querySelector('#chat-log').append(qwer);
-            {#document.querySelector('#chat-log').append(paragraph)#}
+            let paragraph = document.createElement('p')
+            paragraph.classList.add('message_chat')
+            paragraph.innerText = data.time + ' ' + (data.user) + ': ' + data.message
+            if(typeof Chat !== 'undefined' && Chat !== null) {
+                Chat.append(paragraph);
+              }
+            Chat.scrollTop(Chat[0].scrollHeight);
         };
 
         chatSocket.onclose = function(e) {
@@ -145,6 +163,35 @@
                 'message': message
             }));
             messageInputDom.value = '';
+        };
+
+        document.querySelector('.btn-up').onclick = function(e) {
+            var Count = $(this).prev('input');
+            console.log(Count)
+            console.log(Count.attr('id'))
+            console.log(Count.val())
+            {#const message = messageInputDom.value;#}
+            FruitSocket.send(JSON.stringify({
+                action: "send_count",
+                'fruit_id': Count.attr('id'),
+                'count': Count.val()
+            }));
+            Count.value = '';
+        };
+
+        FruitSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(e)
+            console.log(data)
+            {#var Chat = $(".chat_window")#}
+            {#paragraph.innerHTML += (data.message + '\n')#}
+            {#let paragraph = document.createElement('p')#}
+            {#paragraph.classList.add('message_chat')#}
+            {#paragraph.innerText = data.time + ' ' + (data.user) + ': ' + data.message#}
+            {#if(typeof Chat !== 'undefined' && Chat !== null) {#}
+            {#    Chat.append(paragraph);#}
+            {#  }#}
+            {#Chat.scrollTop(Chat[0].scrollHeight);#}
         };
     </script>
     <script src="{% static 'fruitshop/js/main.js' %}"></script>

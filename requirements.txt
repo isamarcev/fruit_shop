@@ -1,11 +1,18 @@
 Django==4.1.4
 Jinja2==3.1.2
 
+httpx==0.23.1
+
 Celery==5.2.7
 flower==1.2.0
 channels_redis==4.0.0
 redis==4.4.0
 channels["daphne"]==4.0.0
+django-celery-beat==2.4.0
+translate==3.6.1
+translators==5.5.5
+
+
 
 psycopg2-binary==2.9.5
 Pillow==9.3.0
