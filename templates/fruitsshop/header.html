@@ -1,0 +1,23 @@
+{% load static %}
+<nav class="navbar bg-peach">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" >
+        <span style="font-size: 25px">
+            MyFruitShop
+        </span>
+    </a>
+      {% if user.is_authenticated %}
+          <div>
+              {{ user.email }}
+              <a class="btn btn-sm btn-outline-success" href="google.com">Logout</a>
+          </div>
+      {% else %}
+          <form class="d-flex" role="search">
+          {% csrf_token %}
+          <input class="form-control me-2" type="search" placeholder="Username" aria-label="Search">
+          <input class="form-control me-2" type="search" placeholder="Password" aria-label="Search">
+          <button class="btn btn-sm btn-outline-success btn-header" type="submit">Login</button>
+        </form>
+      {% endif %}
+  </div>
+</nav>

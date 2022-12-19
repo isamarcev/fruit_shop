@@ -1,0 +1,36 @@
+.gggg {
+    font-size: 45px;
+    color: red;
+}
+
+.btn-header {
+    border-radius: 15px;
+    background-color: #ff630d;
+    padding: 0 30px;
+    color: black;
+    border: 1px solid black;
+}
+
+.bg-peach {
+    background-color: #ffbf7c;
+}
+
+.btn-up {
+    border-radius: 15px;
+    background-color: #b3ff74;
+    padding: 0 5px;
+    color: black;
+    border: 1px solid black;
+}
+
+.btn-down {
+    border-radius: 15px;
+    background-color: #ffce79;
+    padding: 0 5px;
+    color: black;
+    border: 1px solid black;
+}
+
+.money-balance {
+    color: #ff9d19;
+}

@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fruit Shop</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.2.js" integrity="sha256-pkn2CUZmheSeyssYw3vMp1+xyub4m+e+QK4sQskvuo4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'fruitshop/css/main.css' %}">
+</head>
+<body style="font-size: 14px">
+{% include 'fruitsshop/header.html' %}
+<div class="container">
+    <div class="box">
+        <div class="row" style="padding-top: 40px; height: max-content">
+            <!-- LEFT SIDE -->
+            <div class="col-7">
+            <!-- TABLE-->
+                <div class="row">
+                    <table class="table table-bordered table-responsive" style="text-align: center">
+                        <thead>
+                            <td colspan="4">
+                                Товары на складе
+                            </td>
+                        </thead>
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Текущее кол-во</th>
+                                <th style="min-width: 300px">Действия</th>
+                                <th>Последние операции</th>
+                            </tr>
+                        </thead>
+                        {% for product in products %}
+                            <tr>
+                                <td>
+                                    {{ product.name }}
+                                </td>
+                                <td>
+                                    {{ product.balance }}
+                                </td>
+                                <td style="display: flex; justify-content: space-between">
+                                    <input type="text" style="width: 120px;" id="product-{{ product.id }}" placeholder="Кол-во" class="form-control">
+                                    <button class="btn btn-sm btn-outline-success btn-up" type="button">Купить</button>
+                                    <button class="btn btn-sm btn-outline-success btn-down" type="button">Продать</button>
+                                </td>
+                                <td>
+                                    Последняя операцция
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            <!-- END TABLE -->
+                <div class="box">
+                    <div class="row">
+                            <div class="col-6">
+                                    <div>
+{#                                        <p id="chat-log"></p>#}
+                                        <div class="box" id=chat-log" style="height: 200px">
+
+                                        </div>
+                                        <div class="form-group" style="display: flex">
+                                            <input type="text" class="form-control" placeholder="Текст сообщения" id="input_message">
+                                             <button class="btn btn-outline-success btn-header" id="send_message_button" style="margin: 0 10px; padding: 0 10px" type="button">Отправить</button>
+                                        </div>
+                                    </div>
+                            </div>
+                        <div class="col-6" style="border: 1px solid black; text-align: center">
+                            <div class="box" style="padding: 10px">
+                                <p>BANK</p>
+                                <div class="row" style="border: 1px solid black; text-align: center">
+                                    <div class="col-6" style="border-right: 1px solid black">Банковский счет:</div>
+                                    <div class="col-6"><span class="money-balance" id="bank-balance">245</span> <span class="money-balance"> USD</span></div>
+                                </div>
+                                <div class="row" style="margin-top: 10px;">
+                                     <button class="btn btn-outline-success btn-header" style="width: max-content; font-size: 15px" type="button">Провести <br> бухгалтеский аудит</button>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-top: 15px">
+                                    <input type="text" style="width: 120px;" id="balance_input" placeholder="Кол-во" class="form-control">
+                                    <button class="btn btn-sm btn-outline-success btn-up" style="width: 100px" id="up_money" type="button">Пополнить</button>
+                                    <button class="btn btn-sm btn-outline-success btn-down" style="width: 100px" id="down_money" type="button">Вывести</button>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-top: 15px">
+                                    <button class="btn btn-sm btn-outline-success btn-up" style="width: max-content; background-color: #7ac2ff" type="button">Загрузить декларации</button>
+                                    <span style="width: max-content">Сегодня загружено</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- RIGHT SIDE -->
+            <div class="col-5">
+                <div class="box" style="padding: 15px; background-color: burlywood; overflow: auto; height: 650px">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+        {#const roomName = JSON.parse(document.getElementById('room-name').textContent);#}
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data)
+            {#paragraph.innerHTML += (data.message + '\n')#}
+            let qwer = '<p>' + (data.message + '\n') + '</p>'
+            document.querySelector('#chat-log').append(qwer);
+            {#document.querySelector('#chat-log').append(paragraph)#}
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        {#document.querySelector('#chat-message-input').focus();#}
+        {#document.querySelector('#chat-message-input').onkeyup = function(e) {#}
+        {#    if (e.keyCode === 13) {  // enter, return#}
+        {#        document.querySelector('#chat-message-submit').click();#}
+        {#    }#}
+
+        document.querySelector('#send_message_button').onclick = function(e) {
+            const messageInputDom = document.querySelector('#input_message');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                action: "send_message",
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+    <script src="{% static 'fruitshop/js/main.js' %}"></script>
+</body>
+</html>

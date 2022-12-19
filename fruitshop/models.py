@@ -31,7 +31,7 @@ class Transaction(models.Model):
     sum = models.DecimalField(max_digits=5, decimal_places=2)
     success = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now=True)
-    account = models.ForeignKey(PersonalAccount, on_delete=True)
+    account = models.ForeignKey(PersonalAccount, on_delete=models.CASCADE)
     TYPE = (
         ("Покупка", "Покупка"),
         ("Продажа", "Продажа")
