@@ -8,7 +8,7 @@ from users.models import Message, User
 from channels.db import database_sync_to_async
 from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 
-from .tasks import task_buy_fruits
+from .tasks import task_buy_fruits, task_sell_fruits
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -74,13 +74,24 @@ class FruitConsumer(AsyncWebsocketConsumer):
         fruit = validate_integer(text_data_json.get("fruit_id"))
         count = validate_integer(text_data_json.get("count"))
         if fruit and count:
-            task_buy_fruits.delay(fruit, count=int(count), auto=False)
+            if text_data_json['action'] == 'buy':
+                task_buy_fruits.delay(fruit, count=int(count), auto=False)
+            elif text_data_json['action'] == 'sell':
+                task_sell_fruits.delay(fruit, count=int(count), auto=False)
         else:
             await self.send(text_data=json.dumps({
                 "error": "Количество должно быть введено цифрой!"
             }))
 
     async def chat_buying(self, event):
+        print(event)
+        success = event["success"]
+        # user = event["user"]
+        # time = event["time"]
+        # print(time)
+        await self.send(text_data=json.dumps(event))
+
+    async def chat_selling(self, event):
         print(event)
         success = event["success"]
         # user = event["user"]

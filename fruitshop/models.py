@@ -22,13 +22,17 @@ class Declaration(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=30)
     balance = models.PositiveIntegerField(default=0)
+    last_operation = models.ForeignKey('Transaction', on_delete=models.SET_NULL,
+                                       blank=True,
+                                       null=True,
+                                       related_name='last_operation')
 
 
 class Transaction(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     count = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
-    sum = models.DecimalField(max_digits=5, decimal_places=2)
+    sum = models.PositiveIntegerField()
     success = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now=True)
     account = models.ForeignKey(PersonalAccount, on_delete=models.CASCADE)
