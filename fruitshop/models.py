@@ -17,6 +17,7 @@ class PersonalAccount(models.Model):
 class Declaration(models.Model):
     account = models.ForeignKey(PersonalAccount, on_delete=models.CASCADE)
     file = models.FileField(upload_to="declaration/")
+    date = models.DateTimeField(auto_now=True)
 
 
 class Product(models.Model):

@@ -8,7 +8,7 @@ import httpx
 from channels.layers import get_channel_layer
 from config.celery import app
 
-import translators.server as tss
+# import translators.server as tss
 
 from fruitshop import models
 
@@ -40,8 +40,8 @@ def task_joker():
 
     response = httpx.get('https://v2.jokeapi.dev/joke/Any?type=single')
     joke = response.json().get('joke')
-    translated_joke = tss.bing(joke, from_language='en', to_language='ru')
-
+    # translated_joke = tss.bing(joke, from_language='en', to_language='ru')
+    translated_joke = joke
     joke_message = Message.objects.create(user=jester, text=translated_joke)
     date_time = joke_message.date + datetime.timedelta(hours=2)
     async_to_sync(channel_layer.group_send)(
@@ -108,9 +108,6 @@ def task_buy_fruits(fruit_id, count=None, auto=True):
             "fruit_balance": fruit.balance,
             "count": count,
             "auto_task": transaction.auto_task
-
-            # "message": joke_message.text,
-            # "time": date_time.strftime("%H:%M")
         }
     )
     if auto:

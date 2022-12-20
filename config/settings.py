@@ -59,6 +59,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
 PROJECT_DIR = Path(__file__).resolve().parent
 
 
