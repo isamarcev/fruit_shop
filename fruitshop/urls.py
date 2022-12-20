@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path('', views.index),
-    path('', views.ajax_last_transactions, name="ajax_last_transaction")
+    path("ajax_last_transaction/", views.ajax_last_transactions, name="ajax_last_transaction"),
 ]
