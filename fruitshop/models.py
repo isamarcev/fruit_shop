@@ -32,6 +32,7 @@ class Transaction(models.Model):
     success = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now=True)
     account = models.ForeignKey(PersonalAccount, on_delete=models.CASCADE)
+    auto_task = models.BooleanField(default=False)
     TYPE = (
         ("Покупка", "Покупка"),
         ("Продажа", "Продажа")

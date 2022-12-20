@@ -45,3 +45,11 @@
     margin-bottom: 3px;
 
 }
+
+.success_operation {
+    color: #26ff4c
+}
+
+.error_operation {
+    color: #ff0208
+}

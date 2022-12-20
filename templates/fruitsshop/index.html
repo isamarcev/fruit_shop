@@ -38,7 +38,8 @@
                                     {{ product.name }}
                                 </td>
                                 <td>
-                                    {{ product.balance }}
+                                    <span id="product_balance_{{ product.id }}">{{ product.balance }}</span>
+
                                 </td>
                                 <td style="display: flex; justify-content: space-between">
                                     <input type="text" style="width: 120px;" id="{{ product.id }}" name="{{ product.id }}" placeholder="Кол-во" class="form-control">
@@ -46,7 +47,9 @@
                                     <button class="btn btn-sm btn-outline-success btn-down" type="button">Продать</button>
                                 </td>
                                 <td>
-                                    Последняя операцция
+                                    <span id="last_operation_{{ product.id }}">
+                                        Last Operation
+                                    </span>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -97,9 +100,9 @@
             </div>
             <!-- RIGHT SIDE -->
             <div class="col-5">
-                <div class="box" style="padding: 15px; background-color: burlywood; overflow: auto; height: 650px">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                <div id="logger_chat" style="padding: 15px; background-color: burlywood; overflow: auto; height: 650px">
+                    <p class="success_operation">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
+                    <p class="error_operation">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam at blanditiis deserunt, dolore eos et eveniet facilis labore, mollitia necessitatibus nisi nulla pariatur quis. Eum illum nam reiciendis saepe vitae?</p>
@@ -114,18 +117,40 @@
     </div>
 </div>
 <script>
-        {#const roomName = JSON.parse(document.getElementById('room-name').textContent);#}
 
+
+    const FruitsNaming = {
+        "Яблоки": {
+            1: "яблоко",
+            2: "яблока",
+            3: "яблока",
+            4: "яблока",
+        },
+        "Ананасы": {
+            1: "ананасов",
+            2: "ананаса",
+            3: "ананаса",
+            4: "ананаса",
+        },
+        "Бананы": {
+            1: "бананов",
+            2: "банана",
+            3: "банана",
+            4: "банана",
+        },
+
+    }
+    var BankBalance = $('#bank-balance')
+    var LoggerChat = $('#logger_chat')
+
+
+    <!-- CHATSOCKET -->
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
             + '/ws/chat/'
         );
-        const FruitSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/fruit/'
-        );
+
 
         var Chat = $(".chat_window")
         Chat.scrollTop(Chat[0].scrollHeight);
@@ -165,23 +190,41 @@
             messageInputDom.value = '';
         };
 
+        <!-- FRUIT SOCKET-->
+        const FruitSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/fruit/'
+        );
+
         document.querySelector('.btn-up').onclick = function(e) {
             var Count = $(this).prev('input');
-            console.log(Count)
-            console.log(Count.attr('id'))
-            console.log(Count.val())
-            {#const message = messageInputDom.value;#}
             FruitSocket.send(JSON.stringify({
-                action: "send_count",
+                action: "buy",
                 'fruit_id': Count.attr('id'),
                 'count': Count.val()
             }));
-            Count.value = '';
+            Count.val('');
         };
 
         FruitSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(e)
+            if (data.error) {
+                alert(data.error)
+                return
+            }
+            var product_id = data.fruit_id;
+            var ProductCounter = $(`#product_balance_` + product_id);
+            ProductCounter.val(data.fruit_balance);
+            if (data.success === true) {
+                var ProductLastOperation = $('#last_operation_' + product_id);
+                ProductLastOperation.text(
+                data.date_time + '- куплено ' + data.count + ' ' + data.fruit + ' за ' + data.sum_operation + ' USD'
+                );
+            }
+            BankBalance.text(data.balance_account)
+            BuildLog(data)
             console.log(data)
             {#var Chat = $(".chat_window")#}
             {#paragraph.innerHTML += (data.message + '\n')#}
@@ -193,6 +236,15 @@
             {#  }#}
             {#Chat.scrollTop(Chat[0].scrollHeight);#}
         };
+        function BuildLog(data) {
+            if (data.success === false) {
+                var error_text = '<p class="error_operation">' + data.date_time + '- ERROR: Поставщик привёз ' + data.count + ' ' + data.fruit + '. Недостаточно средств на счету, закупка отменена.</p>';
+                LoggerChat.append(text)
+            } else if (data.success === true) {
+                var success_text = '<p class="success_operation">' + data.date_time + '- SUCCESS: Поставщик привёз ' + data.count + ' ' + data.fruit + '. Со счёта списано' + data.sum + 'USD, покупка завершена.</p>';
+                LoggerChat.append(success_text)
+            }
+        }
     </script>
     <script src="{% static 'fruitshop/js/main.js' %}"></script>
 </body>

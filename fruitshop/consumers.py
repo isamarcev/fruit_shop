@@ -2,6 +2,7 @@ import datetime
 import json
 
 from . import models
+from .services import validate_integer
 from users.models import Message, User
 
 from channels.db import database_sync_to_async
@@ -65,49 +66,25 @@ class FruitConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         print("RECEIVE")
+        if self.scope["user"].is_anonymous:
+            await self.send(text_data=json.dumps({
+                "error": "Для торговли вам необходимо авторизоваться в системе!"
+            }))
         text_data_json = json.loads(text_data)
-        fruit = text_data_json.get("fruit_id")
-        count = text_data_json.get("count")
-        if fruit:
-            task = task_buy_fruits.delay(fruit, count=int(count), auto=False)
-            # result = task.get()
-            # print(result)
-            # new_message = await self.create_message(fruit, self.scope.get("user"))
-            # time = new_message.date + datetime.timedelta(hours=2)
-            # await self.channel_layer.group_send(
-            #     self.room_group_name, {"type": "chat_buying",
-            #                            "success": result.success,
-                                       # "user": f'{new_message.user.username}',
-                                       # "time": time.strftime("%H:%M")}
-                                       # })
+        fruit = validate_integer(text_data_json.get("fruit_id"))
+        count = validate_integer(text_data_json.get("count"))
+        if fruit and count:
+            task_buy_fruits.delay(fruit, count=int(count), auto=False)
+        else:
+            await self.send(text_data=json.dumps({
+                "error": "Количество должно быть введено цифрой!"
+            }))
 
     async def chat_buying(self, event):
+        print(event)
         success = event["success"]
         # user = event["user"]
         # time = event["time"]
         # print(time)
-        await self.send(text_data=json.dumps({"success": success,
-                                              # "message": message, "time": time
-                                              }))
+        await self.send(text_data=json.dumps(event))
 
-    # @database_sync_to_async
-    # def create_message(self, message, user):
-    #     user = User.objects.first()
-    #     new_message = Message.objects.create(
-    #         user=user,
-    #         text=message
-    #     )
-    #     return new_message
-# class ChatConsumer(WebsocketConsumer):
-#     def connect(self):
-#
-#         self.accept()
-#
-#     def disconnect(self, close_code):
-#         pass
-#
-#     def receive(self, text_data):
-#         text_data_json = json.loads(text_data)
-#         message = text_data_json["message"]
-#
-#         self.send(text_data=json.dumps({"message": message}))

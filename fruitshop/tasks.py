@@ -14,7 +14,7 @@ from fruitshop import models
 
 @app.on_after_finalize.connect
 def setup_periodic_task(sender, **kwargs):
-    sender.add_periodic_task(10, task_jester.s(), name="joke")
+    sender.add_periodic_task(10, task_joker.s(), name="joke")
     sender.add_periodic_task(10, task_buy_fruits.s(1), name="buy_pineapple")
     sender.add_periodic_task(10, task_buy_fruits.s(2), name="buy_apple")
     sender.add_periodic_task(10, task_buy_fruits.s(3), name="buy_banana")
@@ -24,7 +24,7 @@ def setup_periodic_task(sender, **kwargs):
 
 
 @app.task
-def task_jester():
+def task_joker():
     from django.contrib.auth.models import User
     from users.models import Message
 
@@ -51,7 +51,7 @@ def task_jester():
         every=len(translated_joke),
         period=IntervalSchedule.SECONDS,
     )
-    task = PeriodicTask.objects.get(task='fruitshop.tasks.task_jester')
+    task = PeriodicTask.objects.get(task='fruitshop.tasks.task_joker')
     task.interval = schedule
     task.save()
     PeriodicTasks.changed(task)
@@ -70,12 +70,10 @@ def task_buy_fruits(fruit_id, count=None, auto=True):
     price = random.randint(1, 7)
     sum = count * price
     success = False
-    print(type(sum))
-    print(type(account.balance))
     operation = int(account.balance) - sum
     if operation >= 0:
         success = True
-        fruit.balance = fruit.balance - count
+        fruit.balance = fruit.balance + count
         fruit.save()
         account.balance = operation
         account.save()
@@ -84,7 +82,8 @@ def task_buy_fruits(fruit_id, count=None, auto=True):
                                                     account=account,
                                                     count=count,
                                                     price=price,
-                                                    success=success)
+                                                    success=success,
+                                                    auto_task=True if auto else False)
     channel_layer = get_channel_layer()
 
     async_to_sync(channel_layer.group_send)(
@@ -92,6 +91,15 @@ def task_buy_fruits(fruit_id, count=None, auto=True):
         {
             "type": "chat_buying",
             "success": transaction.success,
+            "balance_account": operation,
+            "date_time": datetime.datetime.now().strftime("%d.%m.%Y, %H:%M"),
+            "sum_operation": transaction.sum,
+            "fruit": fruit.name,
+            "fruit_id": fruit.id,
+            "fruit_balance": fruit.balance,
+            "count": count,
+            "auto_task": transaction.auto_task
+
             # "message": joke_message.text,
             # "time": date_time.strftime("%H:%M")
         }
