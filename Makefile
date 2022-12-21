@@ -8,5 +8,7 @@ beat:
 	#celery -A config worker --loglevel=info
 celery:
 	celery -A config worker -l INFO
+celeryup:
+	celery -A config worker -Q warehouse,celery
 flower:
 	celery -A config flower  --address=127.0.0.1 --port=5566

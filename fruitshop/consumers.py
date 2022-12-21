@@ -25,7 +25,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json.get("message")
-        if message:
+        print()
+        if message and not message.isspace():
             new_message = await self.create_message(message, self.scope.get("user"))
             time = new_message.date + datetime.timedelta(hours=2)
             await self.channel_layer.group_send(
@@ -39,12 +40,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event["message"]
         user = event["user"]
         time = event["time"]
-        print(time)
         await self.send(text_data=json.dumps({"user": user, "message": message, "time": time}))
 
     @database_sync_to_async
     def create_message(self, message, user):
-        user = User.objects.first()
+        if not user.is_authenticated:
+            user = User.objects.get(username="anonim")
         new_message = Message.objects.create(
             user=user,
             text=message
@@ -57,7 +58,6 @@ class FruitConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = 'shop'
         self.room_group_name = "chat_%s" % self.room_name
-        print("CONNECT")
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
@@ -65,7 +65,6 @@ class FruitConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive(self, text_data):
-        print("RECEIVE")
         if self.scope["user"].is_anonymous:
             await self.send(text_data=json.dumps({
                 "error": "Для торговли вам необходимо авторизоваться в системе!"
@@ -84,18 +83,28 @@ class FruitConsumer(AsyncWebsocketConsumer):
             }))
 
     async def chat_buying(self, event):
-        print(event)
-        success = event["success"]
-        # user = event["user"]
-        # time = event["time"]
-        # print(time)
         await self.send(text_data=json.dumps(event))
 
     async def chat_selling(self, event):
-        print(event)
-        success = event["success"]
-        # user = event["user"]
-        # time = event["time"]
-        # print(time)
         await self.send(text_data=json.dumps(event))
+
+
+class AuditConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.room_name = f'audit_{self.scope["url_route"]["kwargs"]["id"]}'
+        self.room_group_name = "chat_%s" % self.room_name
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+    async def update_progress_bar(self, event):
+        await self.send(text_data=json.dumps({
+                "progress": event['progress']
+            }))
+
+
+
+
 

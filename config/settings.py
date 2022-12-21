@@ -47,6 +47,16 @@ INSTALLED_APPS = [
 CELERY_BROKER_URL = f"redis://{env('REDIS_HOST')}:6379/0"
 CELERY_RESULT_BACKEND = f"redis://{env('REDIS_HOST')}:6379/0"
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{env('REDIS_HOST')}:6379/",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -98,6 +108,8 @@ CHANNEL_LAYERS = {
         }
     }
 }
+
+
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

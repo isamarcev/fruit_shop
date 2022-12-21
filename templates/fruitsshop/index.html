@@ -16,7 +16,7 @@
     <div class="box">
         <div class="row" style="padding-top: 40px; height: max-content">
             <!-- LEFT SIDE -->
-            <div class="col-7">
+            <div class="col-sm-12 col-md-8">
             <!-- TABLE-->
                 <div class="row">
                     <table class="table table-bordered table-responsive" style="text-align: center">
@@ -70,13 +70,12 @@
                                             {% for message in messages %}
                                                 <p class="message_chat">
                                                 {{ message.date|time:"H:i" }} {{ message.user }}: {{ message.text }}
-
                                                 </p>
                                             {% endfor %}
                                         </div>
                                         <div class="form-group" style="display: flex; margin-top: 20px">
                                             <input type="text" class="form-control" placeholder="Текст сообщения" id="input_message">
-                                             <button class="btn btn-outline-success btn-header" id="send_message_button" style="margin: 0 10px; padding: 0 10px" type="button">Отправить</button>
+                                             <button class="btn btn-outline-success btn-header" id="send_message_button" style="margin: 0 10px; padding: 0 10px" type="button" onclick="event.preventDefault()">Отправить</button>
                                         </div>
                                     </div>
                             </div>
@@ -87,24 +86,31 @@
                                     <div class="col-6" style="border-right: 1px solid black">Банковский счет:</div>
                                     <div class="col-6"><span class="money-balance" id="bank-balance">{{ account.balance }}</span> <span class="money-balance"> USD</span></div>
                                 </div>
-                                <div class="row" style="margin-top: 10px;">
-                                     <button class="btn btn-outline-success btn-header" style="width: max-content; font-size: 15px" type="button">Провести <br> бухгалтеский аудит</button>
-                                    <div class="progress">
-                                      <div id="audit-progress-bar" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40"
-                                      aria-valuemin="0" aria-valuemax="100" style="width: 0%; background-color: #f6a2bf; border-radius: 10px">
-                                        <span id="audit-bar" style="font-weight: bold"></span>
-                                      </div>
+                                <div class="row" style="margin-top: 10px; align-items: center ">
+                                    <div class="col-5">
+                                     <button class="btn btn-outline-success btn-header" style="padding: 5px; font-size: 15px" id="start_audit" onclick="startAudit()"
+                                             {% if progress_audit %}
+                                             disabled
+                                             {% endif %}
+                                             type="button">Провести <br> бухгалтеский аудит</button>
+                                    </div>
+                                    <div class="col-7">
+                                        <div class="progress" style="padding:0">
+                                          <div id="audit-progress-bar" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{% if progress_audit %}{{ progress_audit }}{% else %}0{% endif %}"
+                                          aria-valuemin="0" aria-valuemax="100" style="width: {% if progress_audit %}{{ progress_audit }}%{% else %}0%{% endif %}; background-color: #f6acca; border-radius: 10px">
+                                            <span id="audit-bar" style="font-weight: bold">{% if progress_audit %}{{ progress_audit }} % {% endif %}</span>
+                                          </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="row" style="display: flex; justify-content: space-between; margin-top: 15px">
                                     <input type="text" style="width: 120px;" id="balance_input" placeholder="Кол-во" class="form-control">
-                                    <button class="btn btn-sm btn-outline-success" style="width: 100px" id="up_money" name="up" onclick='MoneyOnBank(this.name)' type="button">Пополнить</button>
-                                    <button class="btn btn-sm btn-outline-success" style="width: 100px" id="down_money" name="down" onclick='MoneyOnBank(this.name)' type="button">Вывести</button>
+                                    <button class="btn btn-sm btn-outline-success btn-up-money" style="width: 100px" id="up_money" name="up" onclick='MoneyOnBank(this.name)' type="button">Пополнить</button>
+                                    <button class="btn btn-sm btn-outline-success btn-down-money" style="width: 100px" id="down_money" name="down" onclick='MoneyOnBank(this.name)' type="button">Вывести</button>
                                 </div>
                                 <div class="row" style="display: flex; justify-content: space-between; margin-top: 15px; align-items: center">
-                                    <label for="declaration-input" id="declaration_label" class="btn btn-block" style="background-color: #6b85ff; font-weight: normal; width: max-content" title="Файл не выбран">Загрузить декларацию</label>
+                                    <label for="declaration-input" id="declaration_label" class="btn btn-success" style="" title="Файл не выбран">Загрузить декларацию</label>
                                     <input id="declaration-input" type="{% if user.is_authenticated %}file{% else %}button{% endif %}" value="Загрузить декларацию" hidden>
-{#                                    <input type="file" class="btn btn-sm btn-outline-success btn-up" style="width: max-content; background-color: #7ac2ff" content="Загрузить декларации">#}
                                     <span style="width: max-content">Сегодня загружено: <span id="count-declarations">{{ declaration_count }}</span></span>
                                 </div>
                             </div>
@@ -113,8 +119,8 @@
                 </div>
             </div>
             <!-- RIGHT SIDE -->
-            <div class="col-5">
-                <div id="logger_chat" style="padding: 15px; background-color: #f6c5ff; overflow: auto; height: 650px">
+            <div class="col-sm-12 col-md-4">
+                <div id="logger_chat" style="padding: 15px; background-color: #fff3f1; overflow: auto; height: 650px">
                 </div>
 
             </div>
@@ -126,6 +132,8 @@
 
 <script>
 
+    const UserId = '{{ user.id }}'
+
 
     var BankBalance = $('#bank-balance')
     var LoggerChat = $('#logger_chat')
@@ -134,23 +142,21 @@
 
 
     <!-- CHATSOCKET -->
-        const chatSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/chat/'
-        );
-
-
-        var Chat = $(".chat_window")
+        const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/' );
+        const Chat = $(".chat_window")
         Chat.scrollTop(Chat[0].scrollHeight);
 
+        $('#input_message').keyup(function(event){
+            if(event.keyCode == 13){
+                console.log(event.keyCode)
+                $("#send_message_button").click();
+                $(this).val('');
+            }
+        });
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            console.log(e)
-            console.log(data)
             var Chat = $(".chat_window")
-            {#paragraph.innerHTML += (data.message + '\n')#}
             let paragraph = document.createElement('p')
             paragraph.classList.add('message_chat')
             paragraph.innerText = data.time + ' ' + (data.user) + ': ' + data.message
@@ -175,16 +181,10 @@
         };
 
         <!-- FRUIT SOCKET-->
-        const FruitSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/fruit/'
-        );
+        const FruitSocket = new WebSocket( 'ws://' + window.location.host + '/ws/fruit/'  );
 
         $('.btn-up').on('click', function(e) {
             var Count = $(this).prev('input');
-            console.log(Count.val())
-            console.log(Count.attr('id'))
             FruitSocket.send(JSON.stringify({
                 action: "buy",
                 'fruit_id': Count.attr('id'),
@@ -195,8 +195,6 @@
         );
         $('.btn-down').on('click', function(e) {
                 var Count = $(this).prev('button').prev('input');
-                console.log(Count.val())
-                console.log(Count.attr('id'))
                 FruitSocket.send(JSON.stringify({
                     action: "sell",
                     'fruit_id': Count.attr('id'),
@@ -230,9 +228,8 @@
             }
             BuildLog(data)
             LoggerChat.scrollTop(LoggerChat[0].scrollHeight);
-
-            console.log(data)
         };
+
         function BuildLog(data) {
             if (data.type === 'chat_buying') {
                 if (data.success === false) {
@@ -269,38 +266,38 @@
                 setTimeout(getLastTransaction, 10000)
             },
             error: (data) => {}
-    }
-    )
-    }
+    })}
 </script>
 
 <script>
     function MoneyOnBank(name) {
         var Money = $('#balance_input')
-{% if user.is_authenticated %}
-    $.ajax({
-        url: '{% url "ajax_money_bank" %}',
-        type: 'GET',
-        data: {
-            'operation': name,
-            'value': Money.val()
-        },
-            success: (data) => {
-                console.log(data)
-                if (data.success) {
-                    console.log(data.new_value)
-                    $('#bank-balance').text(data.new_value)
-                    toastr.success(data.success, "Операция успешна")
-                } else if (data.error) {
-                    toastr.warning(data.error)
-                }
+        {% if user.is_authenticated %}
+            $.ajax({
+                url: '{% url "ajax_money_bank" %}',
+                type: 'GET',
+                data: {
+                    'operation': name,
+                    'value': Money.val()
+                },
+                success: (data) => {
+                    console.log(data)
+                    if (data.success) {
+                        console.log(data.new_value)
+                        $('#bank-balance').text(data.new_value)
+                        toastr.success(data.success, "Операция успешна")
+                    } else if (data.error) {
+                        toastr.warning(data.error)
+                    }
+                },
+                error: (data) => {},
             },
-            error: (data) => {},
-    },
             Money.val('')
-    )
-{% endif %}
-}
+            )
+    {% else %}
+        toastr.warning("Авторизуйтесь, чтобы провести эту операцию!")
+    {% endif %}
+    }
     const declarationInput = $('#declaration-input')
     const declarationLabel = $('#declaration_label')
     const declarationCount = $('#count-declarations')
@@ -348,6 +345,62 @@ declarationInput.change(function() {
         })
     }
 
+
+</script>
+
+<script>
+    {% if user.is_authenticated %}
+    const auditSocket = new WebSocket('ws://' + window.location.host + '/ws/audit/'+ UserId + '/' );
+    {% endif %}
+    const auditProgressBar = $('#audit-progress-bar');
+    const auditBar = $('#audit-bar');
+    const startAuditButton = $('#start_audit');
+
+    function startAudit() {
+        {% if user.is_authenticated %}
+        $.ajax({
+            url: '{% url "start_audit" %}',
+            type: 'GET',
+            data: {
+                user_id: UserId,
+            },
+            success: (data) => {
+            toastr.success("Аудит стартовал!", "Успех")
+
+            },
+            error: (error) => {},
+        })
+        {% else %}
+            toastr.warning("Авторизуйтесь в системе!", "Не авторизован")
+        {% endif %}
+    }
+    auditSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        auditProgressBar.css('width', data.progress + '%')
+        auditBar.text(data.progress + '%')
+        console.log(typeof data.progress)
+        if (data.progress < 100) {
+            console.log("NOT 100")
+            startAuditButton.prop("disabled", true);
+        } else {
+            startAuditButton.prop("disabled", false);
+            toastr.success("Бухлагтерский аудит успешно проведен!", "Успех")
+        }
+
+    };
+
+    auditSocket.onclose = function(e) {
+        console.error('Audit socket closed unexpectedly');
+    };
+
+    {#document.querySelector('#send_message_button').onclick = function(e) {#}
+    {#    const messageInputDom = document.querySelector('#input_message');#}
+    {#    const message = messageInputDom.value;#}
+    {#    chatSocket.send(JSON.stringify({#}
+    {#        action: "send_message",#}
+    {#        'message': message#}
+    {#    }));#}
+    {#    messageInputDom.value = '';};#}
 
 </script>
 

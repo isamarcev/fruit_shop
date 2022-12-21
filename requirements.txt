@@ -12,6 +12,10 @@ django-celery-beat==2.4.0
 translate==3.6.1
 translators==5.5.5
 
+#CELERY
+django-redis==5.2.0
+
+
 
 
 psycopg2-binary==2.9.5

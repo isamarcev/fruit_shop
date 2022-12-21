@@ -1,14 +1,20 @@
 import datetime
 
+from django.core.cache import cache
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from fruitshop import models
 from fruitshop.services import get_true_fruit_name, validate_integer
 from users.models import Message
+
+from .tasks import task_check_warehouse
 # Create your views here.
 
 
 def index(request):
+    user_id = request.user.id
+    progress_audit = cache.get(f'user_{user_id}_progress')
+    progress_user = cache.get(f'user_{user_id}')
     procucts = models.Product.objects.all().prefetch_related('transaction_set')
     messages = Message.objects.all()[0:40][::-1]
     account = models.PersonalAccount.objects.first()
@@ -16,7 +22,8 @@ def index(request):
     return render(request, 'fruitsshop/index.html', context={"products": procucts,
                                                              "messages": messages,
                                                              "account": account,
-                                                             "declaration_count": declaration_count})
+                                                             "declaration_count": declaration_count,
+                                                             "progress_audit": progress_audit})
 
 
 def ajax_last_transactions(request):
@@ -67,3 +74,13 @@ def upload_declaration(request):
         return JsonResponse({"success": declaration_count})
     else:
         return JsonResponse({"error": "Чтобы добавить декларацию авторизуйтесь в системе"})
+
+
+def start_audit(request):
+    if request.method == "GET":
+        user_id = request.GET.get("user_id")
+        if cache.get(f'user_{user_id}') is None:
+            cache.set(f'user_{user_id}', 1)
+            task_check_warehouse.delay(user_id)
+            return JsonResponse({}, status=200)
+        return JsonResponse({}, status=400)

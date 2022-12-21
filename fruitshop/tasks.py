@@ -1,5 +1,8 @@
 import datetime
 import random
+
+from django.core.cache import cache
+
 from .services import get_true_fruit_name
 
 from asgiref.sync import async_to_sync
@@ -36,19 +39,19 @@ def task_joker():
     from users.models import Message
 
     channel_layer = get_channel_layer()
-    jester = User.objects.get(username='admin')
+    joker = User.objects.get(username='joker')
 
     response = httpx.get('https://v2.jokeapi.dev/joke/Any?type=single')
     joke = response.json().get('joke')
     # translated_joke = tss.bing(joke, from_language='en', to_language='ru')
     translated_joke = joke
-    joke_message = Message.objects.create(user=jester, text=translated_joke)
+    joke_message = Message.objects.create(user=joker, text=translated_joke)
     date_time = joke_message.date + datetime.timedelta(hours=2)
     async_to_sync(channel_layer.group_send)(
         'chat_chat',
         {
             "type": "chat_message",
-            "user": jester.username,
+            "user": joker.username,
             "message": joke_message.text,
             "time": date_time.strftime("%H:%M")
         }
@@ -73,7 +76,7 @@ def task_buy_fruits(fruit_id, count=None, auto=True):
     if count:
         count = count
     else:
-        count = random.randint(1, 10)
+        count = random.randint(4, 10)
     price = random.randint(3, 5)
     sum = count * price
     operation = int(account.balance) - sum
@@ -130,8 +133,8 @@ def task_sell_fruits(fruit_id, count=None, auto=True):
     if count:
         count = count
     else:
-        count = random.randint(4, 10)
-    price = random.randint(4, 8)
+        count = random.randint(4, 8)
+    price = random.randint(3, 6)
     sum = count * price
     balance_fruit_after_sell = fruit.balance - count
     operation = int(account.balance) + sum
@@ -172,7 +175,7 @@ def task_sell_fruits(fruit_id, count=None, auto=True):
         }
     )
     if auto:
-        random_time = random.randint(5, 20)
+        random_time = random.randint(10, 30)
         schedule, created = IntervalSchedule.objects.get_or_create(
             every=random_time,
             period=IntervalSchedule.SECONDS,
@@ -184,6 +187,24 @@ def task_sell_fruits(fruit_id, count=None, auto=True):
         PeriodicTasks.changed(task)
 
 
+@app.task(bind=True)
+def task_check_warehouse(self, user_id):
+    channel_layer = get_channel_layer()
+    for i in range(1, 26):
+        math_operations = [11111 ** 111111 for x in range(3)]
+        current_percent = i * 4
+        self.update_state(state='PROGRESS', meta={'current': current_percent, 'total': 100})
+        cache.set(f'user_{user_id}_progress', current_percent)
+        async_to_sync(channel_layer.group_send)(
+            f'chat_audit_{user_id}',
+            {
+                "type": "update.progress.bar",
+                "progress": current_percent
+            }
+        )
+    cache.delete(f'user_{user_id}_progress')
+    cache.delete(f'user_{user_id}')
+    return {'current': 100, 'total': 100}
 
 
 
