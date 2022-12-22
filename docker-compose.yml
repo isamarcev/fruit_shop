@@ -18,7 +18,7 @@ services:
       - daphne
   daphne:
     build:
-      context: ./daphne
+      context: ./
     image: daphne:test
     ports:
       - "8080:8080"
