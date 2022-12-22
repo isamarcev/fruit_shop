@@ -25,7 +25,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json.get("message")
-        print()
         if message and not message.isspace():
             new_message = await self.create_message(message, self.scope.get("user"))
             time = new_message.date + datetime.timedelta(hours=2)
