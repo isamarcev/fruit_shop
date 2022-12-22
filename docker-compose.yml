@@ -5,7 +5,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    command: daphne -b 0.0.0.0 -p 8001 config.asgi:application
+    command: make startup
     volumes:
       - static_volume:/home/app/web/static
       - media_volume:/home/app/web/media
