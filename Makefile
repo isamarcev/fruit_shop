@@ -14,6 +14,7 @@ celeryup:
 flower:
 	celery -A config flower  --address=127.0.0.1 --port=5566
 startup:
+	python manage.py makemigrations
 	python manage.py migrate
 	python manage.py collectstatic --no-input
 	python manage.py create_products

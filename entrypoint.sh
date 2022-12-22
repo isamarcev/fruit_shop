@@ -12,9 +12,6 @@ then
 
 fi
 
-#python manage.py flush --no-input
-python manage.py migrate
-make create_products
-make create_user
+#python manage.py migrate
 
 exec "$@"

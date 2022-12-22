@@ -23,9 +23,9 @@ services:
     ports:
       - "8080:8080"
       - "8000:8000"
-    depends_on:
-      - postgres
-    tty: true
+#    depends_on:
+#      - postgres
+#    tty: true
     container_name: daphne_server
   nginx:
     build: ./nginx
@@ -53,7 +53,7 @@ services:
     restart: always
     build:
       context: .
-    command: make celeryup
+#    command: make celeryup
     depends_on:
       - db
       - redis
@@ -62,7 +62,7 @@ services:
     restart: always
     build:
       context: .
-    command: make beat
+#    command: make beat
     env_file:
       - ./.env
     depends_on:
