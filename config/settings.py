@@ -21,7 +21,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(env("DEBUG"))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -32,12 +32,30 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    "django.contrib.sites",
+    # "django.contrib.sites",
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'config.apps.ConfigConfig',
+    'channels',
+    'fruitshop',
+    'users',
     'celery',
+    'django_celery_beat',
 ]
+
+
+#CELERY
+CELERY_BROKER_URL = f"redis://{env('REDIS_HOST')}:6379/0"
+CELERY_RESULT_BACKEND = f"redis://{env('REDIS_HOST')}:6379/0"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{env('REDIS_HOST')}:6379/",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -51,17 +69,27 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
+PROJECT_DIR = Path(__file__).resolve().parent
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.jinja2.Jinja2',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [PROJECT_DIR / 'jinjatemplates'],
         'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+    },
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
@@ -69,6 +97,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
+
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(env("REDIS_HOST"), 6379)],
+        }
+    }
+}
+
 
 
 # Database

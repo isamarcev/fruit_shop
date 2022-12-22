@@ -1,0 +1,103 @@
+.gggg {
+    font-size: 45px;
+    color: red;
+}
+
+.btn-header {
+    border-radius: 15px;
+    background-color: #ff630d;
+    padding: 0 30px;
+    color: black;
+    border: 1px solid black;
+    transition: 1s;
+}
+
+.bg-peach {
+    background-color: #ffbf7c;
+}
+
+.btn-up {
+    border-radius: 15px;
+    background-color: #b3ff74;
+    padding: 0 5px;
+    color: black;
+    border: 1px solid black;
+    transition: .2s;
+}
+
+.btn-up, .btn-up-money {
+  background-image: linear-gradient(transparent 10%, #b3ff74 10%);
+  background-size: 200% 200%;
+  background-repeat: no-repeat;
+  transition: 1s;
+}
+
+.btn-down, .btn-down-money {
+  background-image: linear-gradient(transparent 10%, #ffce79 10%);
+  background-size: 200% 200%;
+  background-repeat: no-repeat;
+  transition: 1s;
+}
+
+.btn-up:hover, .btn-down:hover, .btn-up-money:hover, .btn-down-money:hover {
+  background-position: 0 180%;
+}
+
+
+.btn-up-money {
+    border-radius: 5px;
+    background-color: #b3ff74;
+    padding: 0 5px;
+    color: black;
+    border: 1px solid black;
+}
+
+.btn-down {
+    border-radius: 15px;
+    background-color: #ffce79;
+    padding: 0 5px;
+    color: black;
+    border: 1px solid black;
+}
+.btn-down-money {
+    border-radius: 5px;
+    background-color: #ffce79;
+    padding: 0 5px;
+    color: black;
+    border: 1px solid black;
+}
+
+#declaration_label:hover {
+    background-color: #2F96B4!important;
+    /*transition-delay: 0.4s;*/
+}
+
+#declaration_label {
+    background-color: #6b85ff;
+    font-weight: normal;
+    width: max-content;
+    transition: .5s;
+}
+
+.money-balance {
+    color: #ff9d19;
+}
+
+.chat_window {
+    border: 2px solid black;
+    border-radius: 5px;
+
+}
+
+.message_chat {
+    margin-bottom: 3px;
+
+}
+
+.success_operation {
+    color: #26ff4c
+}
+
+.error_operation {
+    color: #ff0208
+}

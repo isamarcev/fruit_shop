@@ -1,0 +1,414 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fruit Shop</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.2.js" integrity="sha256-pkn2CUZmheSeyssYw3vMp1+xyub4m+e+QK4sQskvuo4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'fruitshop/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'fruitshop/plugins/toastr/toastr.css' %}">
+</head>
+<body style="font-size: 14px">
+{% include 'fruitsshop/header.html' %}
+<div class="container">
+    <div class="box">
+        <div class="row" style="padding-top: 40px; height: max-content">
+            <!-- LEFT SIDE -->
+            <div class="col-sm-12 col-md-8">
+            <!-- TABLE-->
+                <div class="row">
+                    <table class="table table-bordered table-responsive" style="text-align: center">
+                        <thead>
+                            <td colspan="4">
+                                Товары на складе
+                            </td>
+                        </thead>
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Текущее кол-во</th>
+                                <th style="min-width: 300px">Действия</th>
+                                <th>Последние операции</th>
+                            </tr>
+                        </thead>
+                        {% for product in products %}
+                            <tr>
+                                <td>
+                                    {{ product.name }}
+                                </td>
+                                <td>
+                                    <span id="product_balance_{{ product.id }}">{{ product.balance }}</span>
+
+                                </td>
+                                <td style="display: flex; justify-content: space-between">
+                                    <input type="text" style="width: 120px;" id="{{ product.id }}" name="{{ product.id }}" placeholder="Кол-во" class="form-control">
+                                    <button class="btn btn-sm btn-outline-success btn-up" type="button">Купить</button>
+                                    <button class="btn btn-sm btn-outline-success btn-down" type="button">Продать</button>
+                                </td>
+                                <td>
+                                    <span id="last_operation_{{ product.id }}">
+                                    {{ product.transaction_set.last.date|date:"d.m.Y H:i" }} -
+                                        {% if product.transaction_set.last.type == 'Покупка'  %}
+                                        куплено {{ product.transaction_set.last.count }} за {{ product.transaction_set.last.sum }} USD
+                                        {% elif product.transaction_set.last.type == 'Продажа'%}
+                                        продано {{ product.transaction_set.last.count }} за {{ product.transaction_set.last.sum }} USD
+                                        {% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            <!-- END TABLE -->
+                <div class="box">
+                    <div class="row">
+                            <div class="col-6">
+                                    <div>
+                                        <div class="box chat_window" id=chat_window" style="height: 200px; overflow: auto; padding: 10px; background-color: #bdff78">
+                                            {% for message in messages %}
+                                                <p class="message_chat">
+                                                {{ message.date|time:"H:i" }} {{ message.user }}: {{ message.text }}
+                                                </p>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="form-group" style="display: flex; margin-top: 20px">
+                                            <input type="text" class="form-control" placeholder="Текст сообщения" id="input_message">
+                                             <button class="btn btn-outline-success btn-header" id="send_message_button" style="margin: 0 10px; padding: 0 10px" type="button" onclick="event.preventDefault()">Отправить</button>
+                                        </div>
+                                    </div>
+                            </div>
+                        <div class="col-6" style="border: 2px solid black; border-radius: 5px; text-align: center">
+                            <div class="box" style="padding: 10px">
+                                <p>BANK</p>
+                                <div class="row" style="border: 1px solid black; text-align: center">
+                                    <div class="col-6" style="border-right: 1px solid black">Банковский счет:</div>
+                                    <div class="col-6"><span class="money-balance" id="bank-balance">{{ account.balance }}</span> <span class="money-balance"> USD</span></div>
+                                </div>
+                                <div class="row" style="margin-top: 10px; align-items: center ">
+                                    <div class="col-5">
+                                     <button class="btn btn-outline-success btn-header" style="padding: 5px; font-size: 15px" id="start_audit" onclick="startAudit()"
+                                             {% if progress_audit %}
+                                             disabled
+                                             {% endif %}
+                                             type="button">Провести <br> бухгалтеский аудит</button>
+                                    </div>
+                                    <div class="col-7">
+                                        <div class="progress" style="padding:0">
+                                          <div id="audit-progress-bar" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{% if progress_audit %}{{ progress_audit }}{% else %}0{% endif %}"
+                                          aria-valuemin="0" aria-valuemax="100" style="width: {% if progress_audit %}{{ progress_audit }}%{% else %}0%{% endif %}; background-color: #f6acca; border-radius: 10px">
+                                            <span id="audit-bar" style="font-weight: bold">{% if progress_audit %}{{ progress_audit }} % {% endif %}</span>
+                                          </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-top: 15px">
+                                    <input type="text" style="width: 120px;" id="balance_input" placeholder="Кол-во" class="form-control">
+                                    <button class="btn btn-sm btn-outline-success btn-up-money" style="width: 100px" id="up_money" name="up" onclick='MoneyOnBank(this.name)' type="button">Пополнить</button>
+                                    <button class="btn btn-sm btn-outline-success btn-down-money" style="width: 100px" id="down_money" name="down" onclick='MoneyOnBank(this.name)' type="button">Вывести</button>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-top: 15px; align-items: center">
+                                    <label for="declaration-input" id="declaration_label" class="btn btn-success" style="" title="Файл не выбран">Загрузить декларацию</label>
+                                    <input id="declaration-input" type="{% if user.is_authenticated %}file{% else %}button{% endif %}" value="Загрузить декларацию" hidden>
+                                    <span style="width: max-content">Сегодня загружено: <span id="count-declarations">{{ declaration_count }}</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- RIGHT SIDE -->
+            <div class="col-sm-12 col-md-4">
+                <div id="logger_chat" style="padding: 15px; background-color: #fff3f1; overflow: auto; height: 650px">
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'fruitshop/plugins/toastr/toastr.min.js' %}"></script>
+
+<script>
+
+    const UserId = '{{ user.id }}'
+
+
+    var BankBalance = $('#bank-balance')
+    var LoggerChat = $('#logger_chat')
+    LoggerChat.scrollTop(LoggerChat[0].scrollHeight);
+
+
+
+    <!-- CHATSOCKET -->
+        const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/' );
+        const Chat = $(".chat_window")
+        Chat.scrollTop(Chat[0].scrollHeight);
+
+        $('#input_message').keyup(function(event){
+            if(event.keyCode == 13){
+                console.log(event.keyCode)
+                $("#send_message_button").click();
+                $(this).val('');
+            }
+        });
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            var Chat = $(".chat_window")
+            let paragraph = document.createElement('p')
+            paragraph.classList.add('message_chat')
+            paragraph.innerText = data.time + ' ' + (data.user) + ': ' + data.message
+            if(typeof Chat !== 'undefined' && Chat !== null) {
+                Chat.append(paragraph);
+              }
+            Chat.scrollTop(Chat[0].scrollHeight);
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#send_message_button').onclick = function(e) {
+            const messageInputDom = document.querySelector('#input_message');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                action: "send_message",
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+
+        <!-- FRUIT SOCKET-->
+        const FruitSocket = new WebSocket( 'ws://' + window.location.host + '/ws/fruit/'  );
+
+        $('.btn-up').on('click', function(e) {
+            var Count = $(this).prev('input');
+            FruitSocket.send(JSON.stringify({
+                action: "buy",
+                'fruit_id': Count.attr('id'),
+                'count': Count.val()
+            }));
+            Count.val('');
+        }
+        );
+        $('.btn-down').on('click', function(e) {
+                var Count = $(this).prev('button').prev('input');
+                FruitSocket.send(JSON.stringify({
+                    action: "sell",
+                    'fruit_id': Count.attr('id'),
+                    'count': Count.val()
+                }));
+                Count.val('');
+            }
+        );
+
+        FruitSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(e)
+            if (data.error) {
+                alert(data.error)
+                return
+            }
+            {#var operation_type = ''#}
+            {#if (data.type === 'chat_buying') {#}
+            {#    operation_type = 'куплено'} else {#}
+            {#    operation_type = 'продано'}#}
+            var product_id = data.fruit_id;
+            var ProductCounter = $(`#product_balance_` + product_id);
+            ProductCounter.text(data.fruit_balance);
+            {#if (data.success === true && data.auto_task === false) {#}
+            {#    var ProductLastOperation = $('#last_operation_' + product_id);#}
+            {#    ProductLastOperation.text(#}
+            {#    data.date_time + '- '+ operation_type + ' ' + data.count + ' ' + data.fruit + ' за ' + data.sum_operation + ' USD'#}
+            {#    );}#}
+            if (data.success === true) {
+                BankBalance.text(data.balance_account)
+            }
+            BuildLog(data)
+            LoggerChat.scrollTop(LoggerChat[0].scrollHeight);
+        };
+
+        function BuildLog(data) {
+            if (data.type === 'chat_buying') {
+                if (data.success === false) {
+                    var buy_error_text = '<p class="error_operation">' + data.date_time + '- ERROR: Поставщик привёз ' + data.count + ' ' + data.fruit + '. Недостаточно средств на счету, закупка отменена.</p>';
+                    LoggerChat.append(buy_error_text)
+                } else if (data.success === true) {
+                    var buy_success_text = '<p class="success_operation">' + data.date_time + '- SUCCESS: Поставщик привёз ' + data.count + ' "' + data.fruit + '". Со счёта списано' + data.sum_operation + ' USD, покупка завершена.</p>';
+                    LoggerChat.append(buy_success_text)
+            }} else if (data.type === 'chat_selling') {
+                if (data.success === false) {
+                    var sell_error_text = '<p class="error_operation">' + data.date_time + '- ERROR: Покупатель хочет купить ' + data.count + ' ' + data.fruit + '. В наличии столько нет, в продаже отказано.</p>';
+                    LoggerChat.append(sell_error_text)
+                } else if (data.success === true) {
+                    var sell_success_text = '<p class="success_operation">' + data.date_time + '- SUCCESS: Покупатель хочет купить ' + data.count + ' "' + data.fruit + '". В кассу добавилось ' + data.sum_operation + ' USD, продажа успешна.</p>';
+                    LoggerChat.append(sell_success_text)
+            }
+
+        }}
+    </script>
+<script>
+    function getLastTransaction() {
+    $.ajax({
+        url: '{% url "ajax_last_transaction" %}',
+        type: 'GET',
+        data: {},
+            success: (data) => {
+                var transactions = data
+                console.log(data)
+                var products = ['1', '2', '3', '4', '5', '6']
+                $(products).each(function (index, value) {
+                    var product_operation = $('#last_operation_' + value)
+                    product_operation.text(transactions[value])
+                })
+                setTimeout(getLastTransaction, 10000)
+            },
+            error: (data) => {}
+    })}
+</script>
+
+<script>
+    function MoneyOnBank(name) {
+        var Money = $('#balance_input')
+        {% if user.is_authenticated %}
+            $.ajax({
+                url: '{% url "ajax_money_bank" %}',
+                type: 'GET',
+                data: {
+                    'operation': name,
+                    'value': Money.val()
+                },
+                success: (data) => {
+                    console.log(data)
+                    if (data.success) {
+                        console.log(data.new_value)
+                        $('#bank-balance').text(data.new_value)
+                        toastr.success(data.success, "Операция успешна")
+                    } else if (data.error) {
+                        toastr.warning(data.error)
+                    }
+                },
+                error: (data) => {},
+            },
+            Money.val('')
+            )
+    {% else %}
+        toastr.warning("Авторизуйтесь, чтобы провести эту операцию!")
+    {% endif %}
+    }
+    const declarationInput = $('#declaration-input')
+    const declarationLabel = $('#declaration_label')
+    const declarationCount = $('#count-declarations')
+
+declarationInput.change(function() {
+      let file = this.files[0]
+      if (file) {
+          if ((file.size / 1000000) > 1) {
+              toastr.warning('Размер файла не должен превышать 20МБ', 'Внимание')
+              return
+          }
+          declarationLabel.attr('title', file.name)
+          uploadDeclaration(file)
+      } else {
+          declarationLabel.attr('title', "Файл не выбран")
+      }
+    });
+
+    function uploadDeclaration(file) {
+        let format_data = new FormData()
+        format_data.append('file', file)
+        console.log(format_data)
+        $.ajax({
+            url: '{% url "upload_declaration" %}',
+            type: 'POST',
+            enctype: 'multipart/form-data',
+            data: format_data,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{ csrf_token }}',
+            },
+            success: (data) => {
+                if (data.success) {
+                    declarationLabel.attr('title', 'Файл не выбран')
+                    toastr.success('Декларация успешно загружена', 'Успех')
+                    declarationCount.text(data.success)
+                } else {
+                    alert(data.error)
+                }
+            },
+            error: (error) => {},
+            cache: false,
+            contentType: false,
+            processData: false,
+        })
+    }
+
+
+</script>
+
+<script>
+    {% if user.is_authenticated %}
+    const auditSocket = new WebSocket('ws://' + window.location.host + '/ws/audit/'+ UserId + '/' );
+    {% endif %}
+    const auditProgressBar = $('#audit-progress-bar');
+    const auditBar = $('#audit-bar');
+    const startAuditButton = $('#start_audit');
+
+    function startAudit() {
+        {% if user.is_authenticated %}
+        $.ajax({
+            url: '{% url "start_audit" %}',
+            type: 'GET',
+            data: {
+                user_id: UserId,
+            },
+            success: (data) => {
+            toastr.success("Аудит стартовал!", "Успех")
+
+            },
+            error: (error) => {},
+        })
+        {% else %}
+            toastr.warning("Авторизуйтесь в системе!", "Не авторизован")
+        {% endif %}
+    }
+    auditSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        auditProgressBar.css('width', data.progress + '%')
+        auditBar.text(data.progress + '%')
+        console.log(typeof data.progress)
+        if (data.progress < 100) {
+            console.log("NOT 100")
+            startAuditButton.prop("disabled", true);
+        } else {
+            startAuditButton.prop("disabled", false);
+            toastr.success("Бухлагтерский аудит успешно проведен!", "Успех")
+        }
+
+    };
+
+    auditSocket.onclose = function(e) {
+        console.error('Audit socket closed unexpectedly');
+    };
+
+    {#document.querySelector('#send_message_button').onclick = function(e) {#}
+    {#    const messageInputDom = document.querySelector('#input_message');#}
+    {#    const message = messageInputDom.value;#}
+    {#    chatSocket.send(JSON.stringify({#}
+    {#        action: "send_message",#}
+    {#        'message': message#}
+    {#    }));#}
+    {#    messageInputDom.value = '';};#}
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        setTimeout(getLastTransaction, 10)
+    })
+</script>
+    <script src="{% static 'fruitshop/js/main.js' %}"></script>
+</body>
+</html>

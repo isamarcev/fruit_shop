@@ -1,0 +1,64 @@
+version: '3.7'
+
+services:
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: daphne -b 0.0.0.0 -p config.asgi:application
+    volumes:
+      - static_volume:/home/app/web/static
+      - media_volume:/home/app/web/media
+    expose:
+      - 8000
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - web
+    volumes:
+      - static_volume:/home/app/web/static
+      - media_volume:/home/app/web/media
+  db:
+    image: postgres:14.5-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env.db
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data
+    restart: always
+  celery:
+    restart: always
+    build:
+      context: .
+    command: make celeryup
+    depends_on:
+      - db
+      - redis
+      - web
+  celery-beat:
+    restart: always
+    build:
+      context: .
+    command: make beat
+    env_file:
+      - ./.env
+    depends_on:
+      - celery
+
+
+volumes:
+  cache:
+  static_volume:
+  media_volume:
+  postgres_data:

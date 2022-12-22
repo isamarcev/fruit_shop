@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 /media/
 
-.env.prod.db
+.env.db
 .env.prod
