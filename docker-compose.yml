@@ -5,7 +5,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    command: daphne -b 0.0.0.0 -p config.asgi:application
+    command: daphne -b 0.0.0.0 -p 8001 config.asgi:application
     volumes:
       - static_volume:/home/app/web/static
       - media_volume:/home/app/web/media
@@ -15,6 +15,18 @@ services:
       - ./.env
     depends_on:
       - db
+      - daphne
+  daphne:
+    build:
+      context: ./daphne
+    image: daphne:test
+    ports:
+      - "8080:8080"
+      - "8000:8000"
+    depends_on:
+      - postgres
+    tty: true
+    container_name: daphne_server
   nginx:
     build: ./nginx
     ports:
