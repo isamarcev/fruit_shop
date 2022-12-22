@@ -2,10 +2,11 @@ import datetime
 import random
 
 from django.core.cache import cache
+from django.core.exceptions import MultipleObjectsReturned
 
 from .services import get_true_fruit_name
 
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from django_celery_beat.models import IntervalSchedule, PeriodicTask, PeriodicTasks
 import httpx
 from channels.layers import get_channel_layer
@@ -115,10 +116,16 @@ def task_buy_fruits(fruit_id, count=None, auto=True):
     )
     if auto:
         random_time = random.randint(5, 20)
-        schedule, created = IntervalSchedule.objects.get_or_create(
-            every=random_time,
-            period=IntervalSchedule.SECONDS,
-        )
+        try:
+            schedule, created = IntervalSchedule.objects.get_or_create(
+                every=random_time,
+                period=IntervalSchedule.SECONDS,
+            )
+        except MultipleObjectsReturned:
+            schedule = IntervalSchedule.objects.filter(
+                every=random_time,
+                period=IntervalSchedule.SECONDS,
+            ).first()
         fruit_name = f'buy_{get_true_fruit_name(fruit.name, "english")}'
         task = PeriodicTask.objects.get(task='fruitshop.tasks.task_buy_fruits', name=fruit_name)
         task.interval = schedule
@@ -169,17 +176,20 @@ def task_sell_fruits(fruit_id, count=None, auto=True):
             "fruit_balance": fruit.balance,
             "count": count,
             "auto_task": transaction.auto_task
-
-            # "message": joke_message.text,
-            # "time": date_time.strftime("%H:%M")
         }
     )
     if auto:
         random_time = random.randint(10, 30)
-        schedule, created = IntervalSchedule.objects.get_or_create(
-            every=random_time,
-            period=IntervalSchedule.SECONDS,
-        )
+        try:
+            schedule, created = IntervalSchedule.objects.get_or_create(
+                every=random_time,
+                period=IntervalSchedule.SECONDS,
+            )
+        except MultipleObjectsReturned:
+            schedule = IntervalSchedule.objects.filter(
+                every=random_time,
+                period=IntervalSchedule.SECONDS,
+            ).first()
         fruit_name = f'sell_{get_true_fruit_name(fruit.name, "english")}'
         task = PeriodicTask.objects.get(task='fruitshop.tasks.task_sell_fruits', name=fruit_name)
         task.interval = schedule

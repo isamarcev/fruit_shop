@@ -13,4 +13,9 @@ class Command(BaseCommand):
             User.objects.create(username='joker', email='joker_joker@email.com')
         if not User.objects.filter(username="anonim").exists():
             User.objects.create(username='anonim', email='anonim@email.com')
+        if not User.objects.filter(username="admin").exists():
+            admin = User.objects.create(username='admin', email='anonim@email.com')
+            admin.set_password("qwerty40Req!")
+            admin.save()
+
 

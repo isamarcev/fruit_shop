@@ -7,7 +7,7 @@ Celery==5.2.7
 flower==1.2.0
 channels_redis==4.0.0
 redis==4.4.0
-channels["daphne"]==4.0.0
+daphne==4.0.0
 django-celery-beat==2.4.0
 translate==3.6.1
 translators==5.5.5
@@ -15,12 +15,10 @@ translators==5.5.5
 #CELERY
 django-redis==5.2.0
 
-
-
-
 psycopg2-binary==2.9.5
 Pillow==9.3.0
 
-
 # env
 django-environ==0.9.0
+
+gunicorn==20.1.0

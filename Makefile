@@ -12,3 +12,9 @@ celeryup:
 	celery -A config worker -Q warehouse,celery
 flower:
 	celery -A config flower  --address=127.0.0.1 --port=5566
+startup:
+	python manage.py migrate
+	python manage.py collectstatic --no-input
+	daphne -b 0.0.0.0 -p config.asgi:application
+	python manage.py create_products
+	python manage.py create_user

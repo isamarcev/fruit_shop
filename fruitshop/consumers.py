@@ -5,6 +5,7 @@ from . import models
 from .services import validate_integer
 from users.models import Message, User
 
+from asgiref.sync import async_to_sync, sync_to_async
 from channels.db import database_sync_to_async
 from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 
@@ -73,9 +74,9 @@ class FruitConsumer(AsyncWebsocketConsumer):
         count = validate_integer(text_data_json.get("count"))
         if fruit and count:
             if text_data_json['action'] == 'buy':
-                task_buy_fruits.delay(fruit, count=int(count), auto=False)
+                await sync_to_async(task_buy_fruits.apply_async)((fruit, count, False))
             elif text_data_json['action'] == 'sell':
-                task_sell_fruits.delay(fruit, count=int(count), auto=False)
+                await sync_to_async(task_sell_fruits.apply_async)((fruit, count, False))
         else:
             await self.send(text_data=json.dumps({
                 "error": "Количество должно быть введено цифрой!"
