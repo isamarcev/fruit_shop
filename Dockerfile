@@ -57,6 +57,10 @@ RUN supervisorctl update
 
 
 RUN chown -R app:app $APP_HOME
+
+RUN ln -s /mnt/volume_fra1_01 ./local_storage
+
+
 RUN chmod +x /home/app/web/entrypoint.sh
 
 USER app
