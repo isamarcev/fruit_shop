@@ -79,17 +79,17 @@ volumes:
   cache:
   static_volume:
   media_volume:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: '/mnt/volume_fra1_01/'
+#    driver: local
+#    driver_opts:
+#      type: 'none'
+#      o: 'bind'
+#      device: '/mnt/volume_fra1_01/'
   postgres_data:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: '/mnt/volume_fra1_01/'
+#    driver: local
+#    driver_opts:
+#      type: 'none'
+#      o: 'bind'
+#      device: '/mnt/volume_fra1_01/'
 #    postgres_data:
 #      driver: local
 #      driver_opts:
