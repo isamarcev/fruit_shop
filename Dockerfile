@@ -46,7 +46,7 @@ COPY ./entrypoint.sh $APP_HOME
 
 COPY . $APP_HOME
 
-RUN apt-get install supervisor
+RUN sudo apt update && sudo apt install supervisor
 COPY supervisor/supervisor.conf /etc/supervisor/conf.d/
 RUN mkdir /run/daphne/
 RUN chown app:app /run/daphne/
