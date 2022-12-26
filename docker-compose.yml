@@ -43,7 +43,7 @@ services:
   db:
     image: postgres:14.5-alpine
     volumes:
-      - /mnt/volume_fra1_01/:var/lib/postgresql/data
+      - /mnt/volume_fra1_01/:/var/lib/postgresql/data
 #        /var/lib/postgresql/data
 #      - postgres_data:/var/lib/postgresql/data
     env_file:
