@@ -36,6 +36,10 @@ services:
     volumes:
       - static_volume:/home/app/web/static
       - media_volume:/home/app/web/media
+  supervisor:
+    build:
+      context: ./  supervisor
+      dockerfile: ./supervisor/Dockerfile
   db:
     image: postgres:14.5-alpine
     volumes:
