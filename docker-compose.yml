@@ -7,10 +7,10 @@ services:
       dockerfile: Dockerfile
     command: make startup
     volumes:
-      - static_volume:/mnt/volume_fra1_01 /var/lib/static
+      - static_volume:/mnt/volume_fra1_01 /home/app/web/static/
 #      - static_volume:/home/app/web/static
 #      - media_volume:/home/app/web/media
-      - media_volume:/mnt/volume_fra1_01 /var/lib/media
+      - media_volume:/mnt/volume_fra1_01 /home/app/web/media/
 #        /home/app/web/media
     expose:
       - 8000
