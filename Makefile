@@ -20,8 +20,8 @@ startup:
 	python manage.py create_products
 	python manage.py create_user
 	daphne -b 0.0.0.0 -p 8000 config.asgi:application
-	celery -A config worker -Q warehouse,celery
-	celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+	#celery -A config worker -Q warehouse,celery
+	#celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
 down:
 	docker compose down -v
 build:

@@ -7,10 +7,14 @@ services:
       dockerfile: Dockerfile
     command: make startup
     volumes:
-      - static_volume:/home/app/web/static
-      - media_volume:/home/app/web/media
+      - static_volume:sudo ln -s /mnt/volume_fra1_01 /var/lib/static
+#      - static_volume:/home/app/web/static
+#      - media_volume:/home/app/web/media
+      - media_volume:sudo ln -s /mnt/volume_fra1_01 /var/lib/media
+#        /home/app/web/media
     expose:
       - 8000
+    container_name: fruit_shop
     env_file:
       - ./.env
     depends_on:
@@ -39,7 +43,9 @@ services:
   db:
     image: postgres:14.5-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:sudo ln -s /mnt/volume_fra1_01 /var/lib/postgresql/data
+#        /var/lib/postgresql/data
+#      - postgres_data:/var/lib/postgresql/data
     env_file:
       - ./.env.db
   redis:
@@ -74,3 +80,4 @@ volumes:
   static_volume:
   media_volume:
   postgres_data:
+
