@@ -38,8 +38,8 @@ services:
     depends_on:
       - web
     volumes:
-      - static_volume:/mnt/volume_fra1_01/ /var/lib/static
-      - media_volume:/mnt/volume_fra1_01/ /var/lib/media
+      - static_volume:/mnt/volume_fra1_01/ /home/app/web/static/
+      - media_volume:/mnt/volume_fra1_01/ /home/app/web/media/
   db:
     image: postgres:14.5-alpine
     volumes:
