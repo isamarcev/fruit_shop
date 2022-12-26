@@ -77,7 +77,6 @@ services:
 
 volumes:
   cache:
-  /mnt/volume_fra1_01/:
 #  media_volume:
   static_volume:
 #    driver: local
