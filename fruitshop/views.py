@@ -1,29 +1,67 @@
 import datetime
 
 from django.core.cache import cache
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse_lazy
+
 from fruitshop import models
 from fruitshop.services import get_true_fruit_name, validate_integer
 from users.models import Message
+
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth import login as auth_login, get_user_model
+from django.contrib.auth import logout as auth_logout
 
 from .tasks import task_check_warehouse
 # Create your views here.
 
 
-def index(request):
+
+User = get_user_model()
+
+
+
+def index(request, context=None):
     user_id = request.user.id
     progress_audit = cache.get(f'user_{user_id}_progress')
-    progress_user = cache.get(f'user_{user_id}')
     procucts = models.Product.objects.all().prefetch_related('transaction_set')
     messages = Message.objects.all()[0:40][::-1]
     account = models.PersonalAccount.objects.first()
     declaration_count = models.Declaration.objects.filter(date__gte=datetime.date.today()).count()
-    return render(request, 'fruitsshop/index.html', context={"products": procucts,
-                                                             "messages": messages,
-                                                             "account": account,
-                                                             "declaration_count": declaration_count,
-                                                             "progress_audit": progress_audit})
+    if context is None:
+        context = dict()
+    context['products'] = procucts
+    context['messages'] = messages
+    context['account'] = account
+    context['declaration_count'] = declaration_count
+    context['progress_audit'] = progress_audit
+    return render(request, 'fruitsshop/index.html', context=context)
+
+
+class Login(LoginView):
+    success_url = reverse_lazy('start_page')
+
+    def post(self, request, *args, **kwargs):
+        user = request.POST.get('username')
+        password = request.POST.get("password")
+        if user and password:
+            user_instance = User.objects.filter(username=user)
+            if user_instance.exists():
+                user_account = user_instance.first()
+                checker_password = user_account.check_password(password)
+                if checker_password:
+                    auth_login(request, user=user_account)
+                    return HttpResponseRedirect(self.success_url)
+            else:
+                return index(request, context={'error_login': 'Вы ввели неправильный логин или пароль. '
+                                                          'Проверьте данные и попробуйте еще раз'})
+        return index(request, context={'error_login': 'Все поля авторизации обязательный к заполнению!'})
+
+
+def logout(request):
+    auth_logout(request)
+    return HttpResponseRedirect(reverse_lazy('start_page'))
 
 
 def ajax_last_transactions(request):
@@ -69,7 +107,7 @@ def upload_declaration(request):
     if request.method == "POST" and request.user.is_authenticated:
         file = request.FILES.get("file")
         account = models.PersonalAccount.objects.first()
-        declaration = models.Declaration.objects.create(file=file, account=account)
+        models.Declaration.objects.create(file=file, account=account)
         declaration_count = models.Declaration.objects.filter(date__gte=datetime.date.today()).count()
         return JsonResponse({"success": declaration_count})
     else:

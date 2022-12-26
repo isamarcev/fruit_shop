@@ -5,16 +5,32 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    command: daphne -b 0.0.0.0 -p config.asgi:application
+    command: daphne -b 0.0.0.0 -p 8000 config.asgi:application
     volumes:
-      - static_volume:/home/app/web/static
-      - media_volume:/home/app/web/media
+      - static_volume:/home/app/web/static/
+#      - static_volume:/home/app/web/static
+#      - media_volume:/home/app/web/media
+      - ./local_storage:/home/app/web/media/
+#        /home/app/web/media
     expose:
       - 8000
+    container_name: fruit_shop
     env_file:
       - ./.env
     depends_on:
       - db
+      - daphne
+  daphne:
+    build:
+      context: ./
+    image: daphne:test
+    ports:
+      - "8080:8080"
+      - "8000:8000"
+#    depends_on:
+#      - postgres
+#    tty: true
+    container_name: daphne_server
   nginx:
     build: ./nginx
     ports:
@@ -22,12 +38,14 @@ services:
     depends_on:
       - web
     volumes:
-      - static_volume:/home/app/web/static
-      - media_volume:/home/app/web/media
+      - static_volume:/home/app/web/static/
+      - ./local_storage:/home/app/web/media/
   db:
     image: postgres:14.5-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./local_storage:/var/lib/postgresql/data
+#        /var/lib/postgresql/data
+#      - postgres_data:/var/lib/postgresql/data
     env_file:
       - ./.env.db
   redis:
@@ -41,7 +59,7 @@ services:
     restart: always
     build:
       context: .
-    command: make celeryup
+#    command: celery -A config worker -Q warehouse,celery
     depends_on:
       - db
       - redis
@@ -50,7 +68,7 @@ services:
     restart: always
     build:
       context: .
-    command: make beat
+#    command: celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
     env_file:
       - ./.env
     depends_on:
@@ -59,6 +77,24 @@ services:
 
 volumes:
   cache:
+#  media_volume:
   static_volume:
-  media_volume:
-  postgres_data:
+  local_storage:
+#    driver: local
+#    driver_opts:
+#      type: 'none'
+#      o: 'bind'
+#      device: '/mnt/volume_fra1_01/'
+#  postgres_data:
+#    driver: local
+#    driver_opts:
+#      type: 'none'
+#      o: 'bind'
+#      device: '/mnt/volume_fra1_01/'
+#    postgres_data:
+#      driver: local
+#      driver_opts:
+#        type: 'none'
+#        o: 'bind'
+#        device: '/mnt/volume_fra1_01/'
+

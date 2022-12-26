@@ -16,4 +16,4 @@ app.conf.task_routes = {
                         }
 
 
-app.autodiscover_tasks(['users','fruitshop'])
+app.autodiscover_tasks(['users', 'fruitshop'])
