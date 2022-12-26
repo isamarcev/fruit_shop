@@ -42,10 +42,6 @@ COPY ./entrypoint.sh $APP_HOME
 
 COPY . $APP_HOME
 
-RUN docker pull okteto/supervisord-nginx:latest
-RUN rm /etc/supervisor/conf.d/default.conf
-COPY supervisor.conf /etc/supervisor/conf.d
-
 RUN chown -R app:app $APP_HOME
 RUN chmod +x /home/app/web/entrypoint.sh
 
