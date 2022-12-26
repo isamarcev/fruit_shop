@@ -19,7 +19,7 @@ class Command(BaseCommand):
             self.stdout.write("ANONI< CREATED")
 
         if not User.objects.filter(username="admin").exists():
-            admin = User.objects.create(username='admin', email='anonim@email.com')
+            admin = User.objects.create(username='admin', email='admin@email.com', is_staff=True, is_superuser=True)
             admin.set_password("qwerty40Req!")
             admin.save()
             personal_account = models.PersonalAccount.objects.create(user=admin)

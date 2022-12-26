@@ -14,7 +14,6 @@ from .tasks import task_check_warehouse
 def index(request):
     user_id = request.user.id
     progress_audit = cache.get(f'user_{user_id}_progress')
-    progress_user = cache.get(f'user_{user_id}')
     procucts = models.Product.objects.all().prefetch_related('transaction_set')
     messages = Message.objects.all()[0:40][::-1]
     account = models.PersonalAccount.objects.first()
@@ -69,7 +68,7 @@ def upload_declaration(request):
     if request.method == "POST" and request.user.is_authenticated:
         file = request.FILES.get("file")
         account = models.PersonalAccount.objects.first()
-        declaration = models.Declaration.objects.create(file=file, account=account)
+        models.Declaration.objects.create(file=file, account=account)
         declaration_count = models.Declaration.objects.filter(date__gte=datetime.date.today()).count()
         return JsonResponse({"success": declaration_count})
     else:

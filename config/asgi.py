@@ -23,6 +23,7 @@ import fruitshop.routing
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
 "websocket": AllowedHostsOriginValidator(
-            AuthMiddlewareStack(URLRouter(fruitshop.routing.websocket_urlpatterns))
+            AuthMiddlewareStack(
+                URLRouter(fruitshop.routing.websocket_urlpatterns))
         ),
 })
