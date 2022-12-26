@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     command: make startup
     volumes:
-      - /mnt/volume_fra1_01/:/home/app/web/static/
+      - static_volume:/home/app/web/static/
 #      - static_volume:/home/app/web/static
 #      - media_volume:/home/app/web/media
       - /mnt/volume_fra1_01/:/home/app/web/media/
@@ -38,7 +38,7 @@ services:
     depends_on:
       - web
     volumes:
-      - /mnt/volume_fra1_01/:/home/app/web/static/
+      - static_volume:/home/app/web/static/
       - /mnt/volume_fra1_01/:/home/app/web/media/
   db:
     image: postgres:14.5-alpine
@@ -77,14 +77,15 @@ services:
 
 volumes:
   cache:
+  /mnt/volume_fra1_01/:
+#  media_volume:
   static_volume:
-  media_volume:
 #    driver: local
 #    driver_opts:
 #      type: 'none'
 #      o: 'bind'
 #      device: '/mnt/volume_fra1_01/'
-  postgres_data:
+#  postgres_data:
 #    driver: local
 #    driver_opts:
 #      type: 'none'
