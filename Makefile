@@ -11,6 +11,8 @@ celery:
 	celery -A config worker -l INFO
 celeryup:
 	celery -A config worker -Q warehouse,celery
+beatup:
+	celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
 flower:
 	celery -A config flower  --address=127.0.0.1 --port=5566
 startup:
