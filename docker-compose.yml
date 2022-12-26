@@ -59,7 +59,7 @@ services:
     restart: always
     build:
       context: .
-    command: celery -A config worker -Q warehouse,celery
+#    command: celery -A config worker -Q warehouse,celery
     depends_on:
       - db
       - redis
@@ -68,7 +68,7 @@ services:
     restart: always
     build:
       context: .
-    command: celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+#    command: celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
     env_file:
       - ./.env
     depends_on:
