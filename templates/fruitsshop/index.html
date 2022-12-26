@@ -409,6 +409,13 @@ declarationInput.change(function() {
         setTimeout(getLastTransaction, 10)
     })
 </script>
+<script>
+    const Login = '{{ error_login }}';
+    if (Login) {
+        toastr.warning(Login, "Ошибка авторизации")
+    }
+</script>
     <script src="{% static 'fruitshop/js/main.js' %}"></script>
+
 </body>
 </html>

@@ -9,13 +9,13 @@
       {% if user.is_authenticated %}
           <div>
               {{ user.email }}
-              <a class="btn btn-sm btn-outline-success" href="google.com">Logout</a>
+              <a class="btn btn-sm btn-outline-success" href="{% url 'logout' %}">Logout</a>
           </div>
       {% else %}
-          <form class="d-flex" role="search">
+          <form class="d-flex" role="search" method="POST" action="{% url 'login' %}">
           {% csrf_token %}
-          <input class="form-control me-2" type="search" placeholder="Username" aria-label="Search">
-          <input class="form-control me-2" type="search" placeholder="Password" aria-label="Search">
+          <input class="form-control me-2" id="id_username" name="username" type="search" placeholder="username" aria-label="Search">
+          <input class="form-control me-2" id="id_password" name="password" type="password" placeholder="password" aria-label="Search">
           <button class="btn btn-sm btn-outline-success btn-header" type="submit">Login</button>
         </form>
       {% endif %}
