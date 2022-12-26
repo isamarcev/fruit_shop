@@ -9,7 +9,7 @@
       {% if user.is_authenticated %}
           <div>
               {{ user.email }}
-              <a class="btn btn-sm btn-outline-success" href="{% url 'logout' %}">Logout</a>
+              <a class="btn btn-sm btn-outline-success" href="{% url 'logout' %}">Выйти</a>
           </div>
       {% else %}
           <form class="d-flex" role="search" method="POST" action="{% url 'login' %}">
