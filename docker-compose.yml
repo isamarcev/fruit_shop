@@ -7,10 +7,10 @@ services:
       dockerfile: Dockerfile
     command: make startup
     volumes:
-      - static_volume:/mnt/volume_fra1_01 /var/lib/static
+      - static_volume:/var/lib/static
 #      - static_volume:/home/app/web/static
 #      - media_volume:/home/app/web/media
-      - media_volume:/mnt/volume_fra1_01 /var/lib/media
+      - media_volume:/var/lib/media
 #        /home/app/web/media
     expose:
       - 8000
@@ -38,12 +38,12 @@ services:
     depends_on:
       - web
     volumes:
-      - static_volume:/mnt/volume_fra1_01/ var/lib/static
-      - media_volume:/mnt/volume_fra1_01/ var/lib/media
+      - static_volume:/var/lib/static
+      - media_volume:/var/lib/media
   db:
     image: postgres:14.5-alpine
     volumes:
-      - postgres_data:/mnt/volume_fra1_01 /var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 #        /var/lib/postgresql/data
 #      - postgres_data:/var/lib/postgresql/data
     env_file:
@@ -78,12 +78,22 @@ services:
 volumes:
   cache:
   static_volume:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/mnt/volume_fra1_01/'
   media_volume:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/mnt/volume_fra1_01/'
+#  postgres_data:
   postgres_data:
-#    postgres_data:
-#      driver: local
-#      driver_opts:
-#        type: 'none'
-#        o: 'bind'
-#        device: '/mnt/volume_fra1_01/'
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/mnt/volume_fra1_01/'
 
