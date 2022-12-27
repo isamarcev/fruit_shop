@@ -16,7 +16,7 @@
     <div class="box">
         <div class="row" style="padding-top: 40px; height: max-content">
             <!-- LEFT SIDE -->
-            <div class="col-sm-12 col-md-8">
+            <div class="col-sm-12 col-md-12">
             <!-- TABLE-->
                 <div class="row">
                     <table class="table table-bordered table-responsive" style="text-align: center">
@@ -119,7 +119,7 @@
                 </div>
             </div>
             <!-- RIGHT SIDE -->
-            <div class="col-sm-12 col-md-4">
+            <div class="col-sm-12 col-md-12">
                 <div id="logger_chat" style="padding: 15px; background-color: #fff3f1; overflow: auto; height: 650px">
                 </div>
 
@@ -211,18 +211,9 @@
                 alert(data.error)
                 return
             }
-            {#var operation_type = ''#}
-            {#if (data.type === 'chat_buying') {#}
-            {#    operation_type = 'куплено'} else {#}
-            {#    operation_type = 'продано'}#}
             var product_id = data.fruit_id;
             var ProductCounter = $(`#product_balance_` + product_id);
             ProductCounter.text(data.fruit_balance);
-            {#if (data.success === true && data.auto_task === false) {#}
-            {#    var ProductLastOperation = $('#last_operation_' + product_id);#}
-            {#    ProductLastOperation.text(#}
-            {#    data.date_time + '- '+ operation_type + ' ' + data.count + ' ' + data.fruit + ' за ' + data.sum_operation + ' USD'#}
-            {#    );}#}
             if (data.success === true) {
                 BankBalance.text(data.balance_account)
             }
@@ -393,14 +384,6 @@ declarationInput.change(function() {
         console.error('Audit socket closed unexpectedly');
     };
 
-    {#document.querySelector('#send_message_button').onclick = function(e) {#}
-    {#    const messageInputDom = document.querySelector('#input_message');#}
-    {#    const message = messageInputDom.value;#}
-    {#    chatSocket.send(JSON.stringify({#}
-    {#        action: "send_message",#}
-    {#        'message': message#}
-    {#    }));#}
-    {#    messageInputDom.value = '';};#}
 
 </script>
 
