@@ -1,40 +1,23 @@
-FROM python:3.10
+FROM python:3.10 as builder
 
-#FROM python:3.9
+WORKDIR /usr/src/app
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /usr/src/app
+RUN apt-get update
+RUN apt-get upgrade -y && apt-get -y install postgresql gcc python3-dev musl-dev
+
+
 
 RUN pip install --upgrade pip
-COPY ./requirements.txt /usr/src/requirements.txt
-RUN pip install -r /usr/src/requirements.txt
-
-RUN mkdir /usr/src/app/media
 
 COPY . .
 
+COPY ./requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
 
-#WORKDIR /usr/src/app
-
-#ENV PYTHONDONTWRITEBYTECODE 1
-#ENV PYTHONUNBUFFERED 1
-
-RUN apt-get update
-RUN apt-get upgrade -y && apt-get -y install postgresql gcc python3-dev musl-dev supervisor
-
-
-
-RUN pip install --upgrade pip
-
-#COPY . .
-
-#COPY ./requirements.txt .
-#RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
-#RUN pip install -r /usr/src/app/requirements.txt
-
-#FROM python:3.10
+FROM python:3.10
 
 RUN mkdir -p /home/app
 
@@ -55,21 +38,22 @@ WORKDIR $APP_HOME
 RUN apt-get update \
     && apt-get install -y netcat
 
-#COPY --from=builder /usr/src/app/wheels /wheels
-#COPY --from=builder /usr/src/app/requirements.txt .
-#RUN pip install --no-cache /wheels/*
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements.txt .
+RUN pip install --no-cache /wheels/*
 
 COPY ./entrypoint.sh $APP_HOME
 
 COPY . $APP_HOME
 
-
-COPY . $APP_HOME
-
+RUN sudo apt update && sudo apt install supervisor
 COPY supervisor/supervisor.conf /etc/supervisor/conf.d/
 RUN mkdir /run/daphne/
 RUN chown app:app /run/daphne/
 RUN mkdir /usr/lib/tmpfiles.d/daphne.conf
+RUN d /run/daphne 0755 app app
+RUN supervisorctl reread
+RUN supervisorctl update
 
 
 RUN chown -R app:app $APP_HOME
@@ -82,5 +66,3 @@ RUN chmod +x /home/app/web/entrypoint.sh
 USER app
 
 ENTRYPOINT ["/home/app/web/entrypoint.sh"]
-
-
