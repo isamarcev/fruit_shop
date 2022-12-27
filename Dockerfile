@@ -1,9 +1,25 @@
 FROM python:3.10
 
-WORKDIR /usr/src/app
+#FROM python:3.9
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
+WORKDIR /usr/src/app
+
+RUN pip install --upgrade pip
+COPY ./requirements.txt /usr/src/requirements.txt
+RUN pip install -r /usr/src/requirements.txt
+
+RUN mkdir /usr/src/app/media
+
+COPY . .
+
+
+#WORKDIR /usr/src/app
+
+#ENV PYTHONDONTWRITEBYTECODE 1
+#ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update
 RUN apt-get upgrade -y && apt-get -y install postgresql gcc python3-dev musl-dev supervisor
@@ -12,11 +28,11 @@ RUN apt-get upgrade -y && apt-get -y install postgresql gcc python3-dev musl-dev
 
 RUN pip install --upgrade pip
 
-COPY . .
+#COPY . .
 
-COPY ./requirements.txt .
+#COPY ./requirements.txt .
 #RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
-RUN pip install -r /usr/src/app/requirements.txt
+#RUN pip install -r /usr/src/app/requirements.txt
 
 #FROM python:3.10
 
