@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update
-RUN apt-get upgrade -y && apt-get -y install postgresql gcc python3-dev musl-dev
+RUN apt-get upgrade -y && apt-get -y install postgresql gcc python3-dev musl-dev supervisor
 
 
 
@@ -46,14 +46,13 @@ COPY ./entrypoint.sh $APP_HOME
 
 COPY . $APP_HOME
 
-RUN sudo apt update && sudo apt install supervisor
+
+COPY . $APP_HOME
+
 COPY supervisor/supervisor.conf /etc/supervisor/conf.d/
 RUN mkdir /run/daphne/
 RUN chown app:app /run/daphne/
 RUN mkdir /usr/lib/tmpfiles.d/daphne.conf
-RUN d /run/daphne 0755 app app
-RUN supervisorctl reread
-RUN supervisorctl update
 
 
 RUN chown -R app:app $APP_HOME
@@ -66,3 +65,5 @@ RUN chmod +x /home/app/web/entrypoint.sh
 USER app
 
 ENTRYPOINT ["/home/app/web/entrypoint.sh"]
+
+
