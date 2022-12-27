@@ -16,5 +16,5 @@ class Command(BaseCommand):
                 models.Product(name="Киви", balance=300),
             ])
         else:
-            self.stdout("Products Already created")
+            self.stdout.write("Products Already created")
 
