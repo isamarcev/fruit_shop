@@ -15,7 +15,7 @@ RUN pip install --upgrade pip
 COPY . .
 
 COPY ./requirements.txt .
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+#RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
 
 #FROM python:3.10
 
@@ -38,9 +38,9 @@ WORKDIR $APP_HOME
 RUN apt-get update \
     && apt-get install -y netcat
 
-COPY --from=builder /usr/src/app/wheels /wheels
-COPY --from=builder /usr/src/app/requirements.txt .
-RUN pip install --no-cache /wheels/*
+#COPY --from=builder /usr/src/app/wheels /wheels
+#COPY --from=builder /usr/src/app/requirements.txt .
+#RUN pip install --no-cache /wheels/*
 
 COPY ./entrypoint.sh $APP_HOME
 
