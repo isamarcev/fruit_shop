@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.10 as builder
 
 WORKDIR /usr/src/app
 
@@ -17,7 +17,7 @@ COPY . .
 COPY ./requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
 
-#FROM python:3.10
+FROM python:3.10
 
 RUN mkdir -p /home/app
 
@@ -32,6 +32,7 @@ ENV APP_HOME=/home/app/web
 RUN mkdir $APP_HOME
 RUN mkdir $APP_HOME/static
 RUN mkdir $APP_HOME/media
+RUN mkdir $APP_HOME/media/declaration
 
 WORKDIR $APP_HOME
 
@@ -57,7 +58,7 @@ RUN mkdir /usr/lib/tmpfiles.d/daphne.conf
 
 RUN chown -R app:app $APP_HOME
 
-RUN ln -s /mnt/volume_fra1_01 ./local_storage
+RUN ln -s /mnt/volume_fra1_01 local_storage
 
 
 RUN chmod +x /home/app/web/entrypoint.sh

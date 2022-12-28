@@ -9,17 +9,14 @@ from fruitshop import models
 from fruitshop.services import get_true_fruit_name, validate_integer
 from users.models import Message
 
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.contrib.auth import login as auth_login, get_user_model
 from django.contrib.auth import logout as auth_logout
 
 from .tasks import task_check_warehouse
-# Create your views here.
-
 
 
 User = get_user_model()
-
 
 
 def index(request, context=None):

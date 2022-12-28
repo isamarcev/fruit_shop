@@ -1,13 +1,12 @@
 import datetime
 import json
 
-from . import models
 from .services import validate_integer
 from users.models import Message, User
 
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
-from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .tasks import task_buy_fruits, task_sell_fruits
 
@@ -51,7 +50,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text=message
         )
         return new_message
-
 
 
 class FruitConsumer(AsyncWebsocketConsumer):
@@ -103,8 +101,3 @@ class AuditConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
                 "progress": event['progress']
             }))
-
-
-
-
-
