@@ -32,6 +32,7 @@ ENV APP_HOME=/home/app/web
 RUN mkdir $APP_HOME
 RUN mkdir $APP_HOME/static
 RUN mkdir $APP_HOME/media
+RUN mkdir $APP_HOME/media/declaration
 
 WORKDIR $APP_HOME
 

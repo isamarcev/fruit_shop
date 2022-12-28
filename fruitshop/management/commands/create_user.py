@@ -22,9 +22,7 @@ class Command(BaseCommand):
             admin = User.objects.create(username='admin', email='admin@email.com', is_staff=True, is_superuser=True)
             admin.set_password("qwerty40Req!")
             admin.save()
-            personal_account = models.PersonalAccount.objects.create(user=admin)
+            models.PersonalAccount.objects.create(user=admin)
             self.stdout.write("ADMON CREATED")
         else:
-            self.stdout.write("ADMIN EXIRX")
-
-
+            self.stdout.write("ADMIN EXIST")

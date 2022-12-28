@@ -17,4 +17,3 @@ class Command(BaseCommand):
             ])
         else:
             self.stdout.write("Products Already created")
-
