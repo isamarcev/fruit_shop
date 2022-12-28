@@ -57,7 +57,7 @@ RUN mkdir /usr/lib/tmpfiles.d/daphne.conf
 
 RUN chown -R app:app $APP_HOME
 
-RUN ln -s /mnt/volume_fra1_01 ./local_storage
+RUN ln -s /mnt/volume_fra1_01 local_storage
 
 
 RUN chmod +x /home/app/web/entrypoint.sh

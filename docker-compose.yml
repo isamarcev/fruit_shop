@@ -10,7 +10,7 @@ services:
       - static_volume:/home/app/web/static/
 #      - static_volume:/home/app/web/static
 #      - media_volume:/home/app/web/media
-      - ./local_storage:/home/app/web/media/
+      - local_storage:/home/app/web/media/
 #        /home/app/web/media
     expose:
       - 8000
@@ -39,11 +39,11 @@ services:
       - web
     volumes:
       - static_volume:/home/app/web/static/
-      - ./local_storage:/home/app/web/media/
+      - local_storage:/home/app/web/media/
   db:
     image: postgres:14.5-alpine
     volumes:
-      - ./local_storage:/var/lib/postgresql/data
+      - local_storage:/var/lib/postgresql/data
 #        /var/lib/postgresql/data
 #      - postgres_data:/var/lib/postgresql/data
     env_file:
