@@ -75,5 +75,5 @@ services:
 volumes:
   cache:
   static_volume:
-  local_storage:
+  postgres_data:
 
