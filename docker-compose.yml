@@ -76,4 +76,5 @@ volumes:
   cache:
   static_volume:
   postgres_data:
+  media_volume:
 
