@@ -9,7 +9,7 @@ services:
     volumes:
       - static_volume:/home/app/web/static/
       - type: bind
-        source: local_storage
+        source: media_volume
         target: /home/app/web/media:Z
     expose:
       - 8000
@@ -35,14 +35,14 @@ services:
       - web
     volumes:
       - static_volume:/home/app/web/static/
-      - /mnt/volume_fra1_01:/home/app/web/media:Z
+      - media_volume:/mnt/volume_fra1_01/media:Z
 #      - type: bind
 #        source: local_storage
 #        target: /home/app/web/media:Z
   db:
     image: postgres:14.5-alpine
     volumes:
-      - /mnt/volume_fra1_01:/var/lib/postgresql/data:Z
+      - postgres_data:/mnt/volume_fra1_01/postgresql/data:Z
     env_file:
       - ./.env.db
   redis:
