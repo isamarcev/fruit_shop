@@ -18,8 +18,7 @@ from fruitshop import models
 
 
 # @app.on_after_configure.connect
-# @app.on_after_finalize.connect
-@app.on_after_configure.connect
+@app.on_after_finalize.connect
 def setup_periodic_task(sender, **kwargs):
     sender.add_periodic_task(5, task_joker.s(), name="joke")
     sender.add_periodic_task(6, task_buy_fruits.s(1), name="buy_pineapple")
